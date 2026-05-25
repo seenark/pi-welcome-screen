@@ -1,0 +1,47 @@
+{
+  "name": "pi-welcome-screen",
+  "version": "0.1.0",
+  "description": "Branded ASCII art welcome screen extension for pi coding agent",
+  "type": "module",
+  "files": [
+    "dist/**/*.js",
+    "dist/**/*.d.ts",
+    "src/**/*.ts",
+    "README.md"
+  ],
+  "keywords": [
+    "pi-package",
+    "pi",
+    "coding-agent",
+    "welcome",
+    "ascii",
+    "extension"
+  ],
+  "author": "Code Sook",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/codesook/pi-welcome-screen"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "node --experimental-strip-types --test tests/**/*.test.ts"
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-ai": "^0.74.0",
+    "@earendil-works/pi-coding-agent": "^0.74.0",
+    "@earendil-works/pi-tui": "^0.74.0"
+  },
+  "devDependencies": {
+    "@earendil-works/pi-ai": "^0.74.0",
+    "@earendil-works/pi-coding-agent": "^0.74.0",
+    "@earendil-works/pi-tui": "^0.74.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "pi": {
+    "extensions": [
+      "./dist/index.js"
+    ]
+  }
+}
