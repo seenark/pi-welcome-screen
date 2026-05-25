@@ -1,43 +1,61 @@
 # pi-welcome-screen
 
-Branded ASCII art welcome screen extension for the [Pi coding agent](https://github.com/nicobailon/pi-powerline-footer).
+Customizable animated ASCII art welcome banner for the [Pi coding agent](https://github.com/earendil-works/pi-mono).
 
-Displays a full-screen ASCII art banner with animated text on startup. Fully customizable: text, URL, animation style, and colors (defaults to Catppuccin Mocha).
+Displays a full-screen ASCII art banner with animations on startup. Fully customizable: text, URL, animation style, and colors (Catppuccin Mocha palette).
 
-## Features
+## How It Works
 
-- **Big ASCII art banner** using box-drawing and block characters
-- **5 animation styles**: `wave`, `rainbow`, `glitch`, `matrix`, `typewriter`, `static`
-- **Catppuccin Mocha** color palette by default
-- **Fully customizable**: main text, URL, colors, animation speed, padding
-- **Config file support**: drop a JSON file to override defaults
-- **Pi extension**: follows the same structure as `pi-powerline-footer`
+This is a **Pi extension** that:
+
+1. Subscribes to the `session_start` event
+2. Calls `ctx.ui.setHeader()` to replace the built-in header with a custom `Component`
+3. The component implements `render(width: number): string[]` — Pi's TUI calls this on every frame tick, producing the animation
 
 ## Installation
 
-### Option A — npm pack (recommended)
+### Option A — Local directory (recommended for development)
 
 ```bash
-cd ~/2026/pi-welcome-screen
-npm install
-npm run build
-npm pack  # creates pi-welcome-screen-*.tgz
+# Clone the repo
+git clone https://github.com/codesook/pi-welcome-screen.git
+cd pi-welcome-screen
 ```
 
-Add to your Pi `settings.json` under `packages`:
+Add to your Pi `settings.json` (`~/.pi/agent/settings.json`):
 
 ```json
 {
-  "packages": [
-    "/path/to/pi-welcome-screen-0.1.0.tgz"
-  ]
+  "extensions": ["/path/to/pi-welcome-screen"]
 }
 ```
 
-### Option B — Local extensions folder
+Or use the `-e` flag for quick testing:
 
 ```bash
-cp -r ~/2026/pi-welcome-screen ~/.pi/extensions/pi-welcome-screen
+pi -e /path/to/pi-welcome-screen
+```
+
+### Option B — Copy to extensions directory
+
+```bash
+cp -r /path/to/pi-welcome-screen ~/.pi/agent/extensions/pi-welcome-screen
+```
+
+Pi auto-discovers extensions in `~/.pi/agent/extensions/`.
+
+### Option C — Pi package (npm/git)
+
+```bash
+pi install git:github.com/codesook/pi-welcome-screen
+```
+
+Or add to `settings.json` under `packages`:
+
+```json
+{
+  "packages": ["git:github.com/codesook/pi-welcome-screen"]
+}
 ```
 
 ## Configuration
@@ -61,10 +79,33 @@ Create `~/.pi/welcome-screen.config.json`:
 }
 ```
 
-### Color Names (Catppuccin Mocha)
+Config file search order:
+1. `~/.pi/welcome-screen.config.json`
+2. `~/.pi/config/welcome-screen.json`
+3. `./welcome-screen.config.json`
+
+## Commands
+
+| Command | Description |
+|---------|-------------|
+| `/builtin-header` | Restore the built-in Pi header |
+| `/welcome-reload` | Reload welcome screen config from disk |
+
+## Animation Styles
+
+| Style | Description |
+|-------|-------------|
+| `wave` | Letters shift with a sinusoidal wave effect |
+| `rainbow` | Each line cycles through the full Catppuccin spectrum |
+| `glitch` | Random glitch artifacts appear on lines |
+| `matrix` | Text is revealed from left to right (Matrix-style) |
+| `typewriter` | Characters appear one-by-one |
+| `static` | No animation — just the banner in full color |
+
+## Color Names (Catppuccin Mocha)
 
 | Name | Hex | Name | Hex |
-|---|---|---|---|
+|------|-----|------|-----|
 | `base` | #1e1e2e | `lavender` | #b4befe |
 | `mantle` | #181825 | `blue` | #89b4fa |
 | `crust` | #11111b | `sapphire` | #74c7ec |
@@ -80,56 +121,32 @@ Create `~/.pi/welcome-screen.config.json`:
 | | | `flamingo` | #f2cdcd |
 | | | `rosewater` | #f5e0dc |
 
-## Animation Styles
-
-| Style | Description |
-|---|---|
-| `wave` | Letters shift with a sinusoidal wave effect |
-| `rainbow` | Each line cycles through the full Catppuccin spectrum |
-| `glitch` | Random glitch artifacts appear on lines |
-| `matrix` | Text is revealed from left to right (Matrix-style) |
-| `typewriter` | Characters appear one-by-one |
-| `static` | No animation — just the banner in full color |
-
-## Development
-
-```bash
-npm install
-npm run build    # compiles TypeScript → dist/
-```
-
-### Smoke Test
-
-```bash
-node -e "
-import { WelcomeScreen } from './dist/index.js';
-const c = new WelcomeScreen({});
-const lines = c.render(120);
-console.log('Lines:', lines.length);
-lines.forEach(l => console.log(l));
-"
-```
-
 ## Project Structure
 
 ```
 pi-welcome-screen/
-├── package.json        # pi.extensions → ./dist/index.js
-├── tsconfig.json
+├── package.json        # pi.extensions → ./src/index.ts
 ├── src/
-│   ├── index.ts        # Entry — exports WelcomeScreen
-│   ├── WelcomeScreen.ts # Component class (implements render())
-│   ├── config.ts       # Defaults + config loading
+│   ├── index.ts        # Extension entry — exports factory function
+│   ├── WelcomeScreen.ts# Legacy stub (kept for compat)
+│   ├── config.ts       # Defaults + config file loading
 │   ├── animations.ts   # ASCII banner + frame builders
 │   ├── renderer.ts     # ANSI color utilities
 │   └── types.ts        # TypeScript interfaces
 └── README.md
 ```
 
-## How It Works
+## Development
 
-1. Pi reads `package.json` → finds `./dist/index.js` via the `pi.extensions` field
-2. `index.ts` exports `WelcomeScreen` as the extension's default component
-3. `WelcomeScreen` implements the `Component` interface from `@earendil-works/pi-tui`
-4. Each `render(termWidth)` call advances the animation frame and returns colored lines
-5. The Pi TUI calls `render()` on every animation frame tick, creating motion
+No build step needed — Pi loads TypeScript extensions via [jiti](https://github.com/unjs/jiti).
+
+```bash
+# Test locally
+pi -e .
+
+# Or install as extension and run pi normally
+```
+
+## License
+
+MIT

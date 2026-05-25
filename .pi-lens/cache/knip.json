@@ -1,0 +1,167 @@
+{
+  "success": true,
+  "issues": [
+    {
+      "type": "file",
+      "name": "src/WelcomeScreen.ts",
+      "file": "src/WelcomeScreen.ts"
+    },
+    {
+      "type": "unlisted",
+      "name": "@earendil-works/pi-tui",
+      "file": "src/index.ts",
+      "line": 15
+    },
+    {
+      "type": "export",
+      "name": "validateConfig",
+      "file": "src/config.ts",
+      "line": 64
+    },
+    {
+      "type": "export",
+      "name": "BANNER_LINES1",
+      "file": "src/animations.ts",
+      "line": 22
+    },
+    {
+      "type": "export",
+      "name": "BANNER_ONE_LINER",
+      "file": "src/animations.ts",
+      "line": 34
+    },
+    {
+      "type": "export",
+      "name": "colorMarker",
+      "file": "src/animations.ts",
+      "line": 190
+    },
+    {
+      "type": "export",
+      "name": "FrameBuilder",
+      "file": "src/animations.ts",
+      "line": 39
+    },
+    {
+      "type": "export",
+      "name": "bgColorToAnsi",
+      "file": "src/renderer.ts",
+      "line": 48
+    },
+    {
+      "type": "export",
+      "name": "colorize",
+      "file": "src/renderer.ts",
+      "line": 60
+    },
+    {
+      "type": "export",
+      "name": "stripAnsi",
+      "file": "src/renderer.ts",
+      "line": 90
+    },
+    {
+      "type": "export",
+      "name": "visibleWidth",
+      "file": "src/renderer.ts",
+      "line": 97
+    },
+    {
+      "type": "export",
+      "name": "rainbowLine",
+      "file": "src/renderer.ts",
+      "line": 155
+    },
+    {
+      "type": "export",
+      "name": "rainbowLines",
+      "file": "src/renderer.ts",
+      "line": 169
+    }
+  ],
+  "unusedExports": [
+    {
+      "type": "export",
+      "name": "validateConfig",
+      "file": "src/config.ts",
+      "line": 64
+    },
+    {
+      "type": "export",
+      "name": "BANNER_LINES1",
+      "file": "src/animations.ts",
+      "line": 22
+    },
+    {
+      "type": "export",
+      "name": "BANNER_ONE_LINER",
+      "file": "src/animations.ts",
+      "line": 34
+    },
+    {
+      "type": "export",
+      "name": "colorMarker",
+      "file": "src/animations.ts",
+      "line": 190
+    },
+    {
+      "type": "export",
+      "name": "FrameBuilder",
+      "file": "src/animations.ts",
+      "line": 39
+    },
+    {
+      "type": "export",
+      "name": "bgColorToAnsi",
+      "file": "src/renderer.ts",
+      "line": 48
+    },
+    {
+      "type": "export",
+      "name": "colorize",
+      "file": "src/renderer.ts",
+      "line": 60
+    },
+    {
+      "type": "export",
+      "name": "stripAnsi",
+      "file": "src/renderer.ts",
+      "line": 90
+    },
+    {
+      "type": "export",
+      "name": "visibleWidth",
+      "file": "src/renderer.ts",
+      "line": 97
+    },
+    {
+      "type": "export",
+      "name": "rainbowLine",
+      "file": "src/renderer.ts",
+      "line": 155
+    },
+    {
+      "type": "export",
+      "name": "rainbowLines",
+      "file": "src/renderer.ts",
+      "line": 169
+    }
+  ],
+  "unusedFiles": [
+    {
+      "type": "file",
+      "name": "src/WelcomeScreen.ts",
+      "file": "src/WelcomeScreen.ts"
+    }
+  ],
+  "unusedDeps": [],
+  "unlistedDeps": [
+    {
+      "type": "unlisted",
+      "name": "@earendil-works/pi-tui",
+      "file": "src/index.ts",
+      "line": 15
+    }
+  ],
+  "summary": "Found 13 issues"
+}
