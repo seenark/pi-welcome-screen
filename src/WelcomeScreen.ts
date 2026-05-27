@@ -1,10 +1,17 @@
 /**
- * WelcomeScreen — legacy re-export for backwards compatibility.
+ * WelcomeScreen — DEPRECATED
  *
- * The main component is now WelcomeHeader in index.ts.
- * This file is kept for any existing consumers that imported from here.
+ * This file is kept for backwards compatibility but is no longer used.
+ * The welcome screen is now shown as an overlay (WelcomeOverlay) instead of
+ * a header component.
+ *
+ * @deprecated Use WelcomeOverlay.ts for the current implementation
  */
 
-// This file is intentionally minimal — all logic moved to index.ts
-// The WelcomeHeader class is defined inline in index.ts as the header component.
-// Consumers should use the extension's default export factory function.
+// Re-export WelcomeOverlay for any consumers that might import from here
+export { WelcomeOverlay } from "./WelcomeOverlay.js";
+export type {
+	WelcomeConfig,
+	AnimationStyle,
+	BorderStyle,
+} from "./types.js";

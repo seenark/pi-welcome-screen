@@ -15,12 +15,14 @@
 
 ```
 src/
-├── index.ts           # Entry point — exports default factory function + WelcomeHeader component
+├── index.ts           # Entry point — exports default factory function
+├── WelcomeOverlay.ts  # Overlay component with two-column layout support
 ├── WelcomeScreen.ts   # Legacy stub (kept for backwards compat)
 ├── config.ts          # Defaults, Catppuccin Mocha palette, config file loading, validation
 ├── animations.ts      # ASCII banner data, frame builders for each animation style
 ├── renderer.ts        # ANSI escape code utilities, color mapping, line centering/fitting
-└── types.ts           # WelcomeConfig interface, AnimationStyle type
+├── info-panel.ts      # Discovery functions for loaded counts, recent sessions
+└── types.ts           # WelcomeConfig interface, AnimationStyle type, InfoPanelData
 ```
 
 ## Key Concepts
@@ -35,9 +37,19 @@ src/
 ### How the Welcome Screen Works
 
 1. Extension subscribes to `session_start` event
-2. On session start, calls `ctx.ui.setHeader()` with a factory function `(tui, theme) => Component`
+2. On session start, calls `ctx.ui.custom()` with an overlay factory function
 3. The returned `Component` implements `render(width: number): string[]` — Pi's TUI calls this on every animation frame tick
 4. Each `render()` call advances the frame index based on elapsed time and returns colored lines with embedded ANSI codes
+
+### Two-Column Layout
+
+When `showInfoPanel: true` (default) and terminal width >= 100, the overlay displays:
+- **Left column:** Animated ASCII banner + main text + URL
+- **Right column:** Info panel with:
+  - Model name and provider
+  - Keyboard tips
+  - Loaded counts (extensions, skills, context files, prompt templates)
+  - Recent sessions
 
 ### Config System
 
@@ -79,11 +91,13 @@ No build, install, or compile steps needed.
 
 ## Key Files to Read First
 
-1. `src/types.ts` — understand the config shape and animation types
+1. `src/types.ts` — understand the config shape, animation types, and info panel data types
 2. `src/index.ts` — understand the extension factory and Component implementation
-3. `src/animations.ts` — understand how frames are generated per style
-4. `src/renderer.ts` — understand ANSI color utilities
-5. `src/config.ts` — understand defaults, palette, and config loading
+3. `src/WelcomeOverlay.ts` — understand the overlay rendering with two-column layout
+4. `src/animations.ts` — understand how frames are generated per style
+5. `src/renderer.ts` — understand ANSI color utilities
+6. `src/config.ts` — understand defaults, palette, and config loading
+7. `src/info-panel.ts` — understand how loaded counts and recent sessions are discovered
 
 ## Common Tasks
 
@@ -94,6 +108,7 @@ No build, install, or compile steps needed.
 | Change the color palette | Replace or extend `CATPPUCCIN_MOCHA` in `config.ts`. All code references colors by name. |
 | Change the ASCII banner | Edit `BANNER_LINES` in `animations.ts`. Each line is one row of the banner. |
 | Fix terminal width handling | Edit `centerLine()` and `fitLine()` in `renderer.ts`. |
+| Add info panel section | Add to `InfoPanelSection` in `types.ts`, implement in `buildInfoPanelContent()` in `WelcomeOverlay.ts`. |
 
 ## Reference
 

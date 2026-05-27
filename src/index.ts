@@ -1,214 +1,158 @@
 /**
- * pi-welcome-screen — customizable animated ASCII art welcome banner for Pi.
+ * pi-welcome-screen — customizable animated ASCII art welcome overlay for Pi.
  *
  * This is the extension entry point. Pi loads it via jiti (TypeScript works
  * without compilation) and calls the default export factory function with
  * the ExtensionAPI.
  *
- * The extension uses `ctx.ui.setHeader()` to replace the built-in header
- * with an animated ASCII art banner. Config is loaded from:
+ * The extension uses `ctx.ui.custom({ overlay: true })` to show an animated
+ * welcome overlay on session start. The overlay:
+ * - Displays an animated ASCII art banner inside a styled box
+ * - Optional two-column layout with info panel (model, tips, loaded counts, sessions)
+ * - Has a countdown timer with auto-dismiss
+ * - Dismisses on any keypress
+ * - Auto-dismisses when agent starts responding
+ *
+ * Config is loaded from:
  *   1. Built-in defaults
  *   2. ~/.pi/welcome-screen.config.json (or ~/.pi/config/welcome-screen.json)
  */
 
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
-import type { Component } from "@earendil-works/pi-tui";
 import { loadConfig } from "./config.js";
-import {
-	BANNER_LINES,
-	buildAnimationFrames,
-	getFrameCount,
-} from "./animations.js";
-import {
-	colorToAnsi,
-	centerLine,
-	fitLine,
-	resolveColorMarkers,
-	buildAnimationColorMap,
-	ansi,
-} from "./renderer.js";
-import type { WelcomeConfig } from "./types.js";
+import { WelcomeOverlay } from "./WelcomeOverlay.js";
+import { getInfoPanelData } from "./info-panel.js";
 
-// ─── Colorize Helper ──────────────────────────────────────────────────────────
-
-function colorize(text: string, colorName: string): string {
-	return colorToAnsi(colorName) + text + ansi.reset;
-}
-
-// ─── Welcome Header Component ─────────────────────────────────────────────────
-
-class WelcomeHeader implements Component {
-	private config: WelcomeConfig;
-	private frameIndex: number = 0;
-	private lastFrameTime: number = 0;
-	private frames: string[][] = [];
-	private tui: { requestRender(): void } | null = null;
-	private animInterval: ReturnType<typeof setInterval> | null = null;
-
-	constructor(config: WelcomeConfig) {
-		this.config = config;
-		this.initFrames();
-	}
-
-	/** Start the animation timer. Call after the component is returned from setHeader factory. */
-	startAnimation(tui: { requestRender(): void }): void {
-		this.tui = tui;
-		if (this.frames.length > 1) {
-			this.lastFrameTime = Date.now();
-			this.animInterval = setInterval(() => {
-				this.tui?.requestRender();
-			}, this.config.frameDelayMs);
-		}
-	}
-
-	private initFrames(): void {
-		const totalFrames = getFrameCount(this.config.animationStyle);
-		this.frames = buildAnimationFrames(
-			this.config.animationStyle,
-			BANNER_LINES,
-			totalFrames,
-		);
-	}
-
-	invalidate(): void {
-		this.frameIndex = 0;
-		this.lastFrameTime = 0;
-		this.initFrames();
-	}
-
-	dispose(): void {
-		if (this.animInterval !== null) {
-			clearInterval(this.animInterval);
-			this.animInterval = null;
-		}
-		this.tui = null;
-	}
-
-	render(termWidth: number): string[] {
-		const now = Date.now();
-
-		// Advance frame based on elapsed time
-		if (
-			this.frames.length > 1 &&
-			now - this.lastFrameTime >= this.config.frameDelayMs
-		) {
-			this.frameIndex = (this.frameIndex + 1) % this.frames.length;
-			this.lastFrameTime = now;
-		}
-
-		return this.buildLines(termWidth);
-	}
-
-	private buildLines(termWidth: number): string[] {
-		const lines: string[] = [];
-		const minWidth = 80;
-
-		// Padding top
-		for (let i = 0; i < this.config.paddingTop; i++) {
-			lines.push("");
-		}
-
-		if (termWidth >= minWidth) {
-			// ── Big banner mode ──
-			const frame = this.frames[this.frameIndex] ?? this.frames[0] ?? [];
-			const colorMap = buildAnimationColorMap(this.config.animationColor);
-
-			// Banner lines with animation color
-			for (const rawLine of frame) {
-				const resolved = resolveColorMarkers(rawLine, colorMap);
-				const colorized = this.applyAnimationColor(resolved);
-				lines.push(centerLine(colorized, termWidth));
-			}
-
-			// Main text
-			lines.push("");
-			lines.push(
-				centerLine(
-					colorize(this.config.mainText, this.config.fgColor),
-					termWidth,
-				),
-			);
-
-			// URL
-			lines.push(
-				centerLine(colorize(this.config.url, this.config.urlColor), termWidth),
-			);
-		} else {
-			// ── Compact one-liner mode ──
-			const banner = colorize("CodeSook", this.config.fgColor);
-			const url = colorize(this.config.url, this.config.urlColor);
-			lines.push(centerLine(`${banner}  ${url}`, termWidth));
-		}
-
-		// Padding bottom
-		for (let i = 0; i < this.config.paddingBottom; i++) {
-			lines.push("");
-		}
-
-		// Ensure all lines fit termWidth
-		return lines.map((line) => fitLine(line, termWidth));
-	}
-
-	private applyAnimationColor(line: string): string {
-		const animColor = colorToAnsi(this.config.animationColor);
-		return line.replace(/\x00COLOR:(\w+)\x00/g, (_, name) => {
-			if (name === "reset") return ansi.reset;
-			return animColor;
-		});
-	}
-}
-
-// ─── Extension Factory ────────────────────────────────────────────────────────
+// ─── Extension Factory ─────────────────────────────────────────────────────────
 
 export default function (pi: ExtensionAPI) {
-	let activeHeader: WelcomeHeader | undefined;
+	let activeOverlay: WelcomeOverlay | undefined;
+	let sessionGeneration = 0;
+	let debugMode = false;
+
+	/**
+	 * Show the welcome overlay.
+	 * Called on session_start with a small delay to let Pi initialize.
+	 */
+	function showWelcomeOverlay(ctx: any): void {
+		const config = loadConfig();
+		debugMode = config.debug;
+		const thisSessionGeneration = sessionGeneration;
+
+		// Small delay to let pi-mono finish initialization
+		setTimeout(() => {
+			// Skip if session changed or extension disabled
+			if (thisSessionGeneration !== sessionGeneration) {
+				return;
+			}
+
+			// Skip if agent already started (streaming)
+			if (ctx.ui.isOverlayActive?.()) {
+				return;
+			}
+
+			// Get model info from pi context if available
+			let modelName = config.modelName;
+			let providerName = config.providerName;
+			if (!modelName && ctx.model) {
+				modelName = ctx.model.name || ctx.model.id || "pi agent";
+			}
+			if (!providerName && ctx.model?.provider) {
+				providerName = ctx.model.provider;
+			}
+
+			// Gather info panel data (discovered from filesystem)
+			const infoData = getInfoPanelData(modelName, providerName);
+
+			ctx.ui
+				.custom(
+					(tui: any, _theme: any, _keybindings: any, done: () => void) => {
+						// Create the overlay component with info data
+						activeOverlay = new WelcomeOverlay(config, done, infoData);
+						activeOverlay.startAnimation(tui);
+						return activeOverlay;
+					},
+					{
+						overlay: true,
+						overlayOptions: () => ({
+							verticalAlign: "center",
+							horizontalAlign: "center",
+						}),
+					},
+				)
+				.catch((error: unknown) => {
+					console.debug("[pi-welcome-screen] Welcome overlay failed:", error);
+				});
+		}, 100);
+	}
+
+	/**
+	 * Dismiss the welcome overlay.
+	 * In debug mode, dismissal is suppressed (overlay stays forever).
+	 */
+	function dismissWelcomeOverlay(): void {
+		if (debugMode) return;
+		activeOverlay?.dispose();
+		activeOverlay = undefined;
+	}
+
+	// ─── Event Listeners ────────────────────────────────────────────────────────
 
 	pi.on("session_start", async (_event, ctx) => {
 		if (!ctx.hasUI) return;
 
-		const config = loadConfig();
+		sessionGeneration++;
+		activeOverlay?.dispose();
+		activeOverlay = undefined;
 
-		ctx.ui.setHeader((tui, _theme) => {
-			activeHeader?.dispose();
-			activeHeader = new WelcomeHeader(config);
-			activeHeader.startAnimation(tui);
-			return activeHeader;
-		});
+		// Show the welcome overlay
+		showWelcomeOverlay(ctx);
 	});
 
 	pi.on("session_shutdown", async () => {
-		activeHeader?.dispose();
-		activeHeader = undefined;
+		sessionGeneration++;
+		dismissWelcomeOverlay();
 	});
 
-	// Command to restore built-in header
-	pi.registerCommand("builtin-header", {
-		description: "Restore the built-in Pi header",
+	// Auto-dismiss when agent starts responding
+	pi.on("agent_start", async () => {
+		dismissWelcomeOverlay();
+	});
+
+	// Auto-dismiss on tool call (agent is working)
+	pi.on("tool_call", async () => {
+		dismissWelcomeOverlay();
+	});
+
+	// ─── Commands ──────────────────────────────────────────────────────────────
+
+	// Command to manually dismiss the welcome overlay
+	pi.registerCommand("welcome-dismiss", {
+		description: "Dismiss the welcome overlay",
 		handler: async (_args, ctx) => {
-			activeHeader?.dispose();
-			activeHeader = undefined;
-			ctx.ui.setHeader(undefined);
-			ctx.ui.notify("Built-in header restored", "info");
+			dismissWelcomeOverlay();
+			if (ctx.hasUI) {
+				ctx.ui.notify("Welcome overlay dismissed", "info");
+			}
 		},
 	});
 
-	// Command to reload welcome screen config
+	// Command to reload welcome screen config and reshow
 	pi.registerCommand("welcome-reload", {
-		description: "Reload welcome screen config from disk",
+		description: "Reload welcome screen config from disk and reshow overlay",
 		handler: async (_args, ctx) => {
 			if (!ctx.hasUI) return;
-			const config = loadConfig();
-			activeHeader?.dispose();
 
-			ctx.ui.setHeader((_tui, _theme) => {
-				activeHeader = new WelcomeHeader(config);
-				return activeHeader;
-			});
+			dismissWelcomeOverlay();
+			// Small delay to ensure cleanup
+			setTimeout(() => {
+				showWelcomeOverlay(ctx);
+			}, 50);
 			ctx.ui.notify("Welcome screen reloaded", "info");
 		},
 	});
 }
 
 // Re-export types and utilities for programmatic use
-export type { WelcomeConfig, AnimationStyle } from "./types.js";
+export type { WelcomeConfig, AnimationStyle, BorderStyle } from "./types.js";
 export { loadConfig, DEFAULT_CONFIG, CATPPUCCIN_MOCHA } from "./config.js";

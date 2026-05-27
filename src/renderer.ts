@@ -2,7 +2,6 @@
 // Converts Catppuccin Mocha color names to 24-bit RGB ANSI escape codes.
 
 import { CATPPUCCIN_MOCHA } from "./config.js";
-import type { AnimationStyle } from "./types.js";
 
 // ─── ANSI Escape Code Helpers ─────────────────────────────────────────────────
 
@@ -71,6 +70,20 @@ export function centerLine(line: string, width: number): string {
 	if (visibleLen >= width) return stripAnsi(line).slice(0, width);
 	const pad = Math.floor((width - visibleLen) / 2);
 	return " ".repeat(pad) + line;
+}
+
+/**
+ * Center a line within a given width AND pad to fill full width.
+ * Handles ANSI codes correctly by measuring visible length only.
+ */
+export function centerPadLine(line: string, width: number): string {
+	const stripped = stripAnsi(line);
+	if (stripped.length >= width) {
+		return stripAnsi(line).slice(0, width);
+	}
+	const leftPad = Math.floor((width - stripped.length) / 2);
+	const rightPad = width - stripped.length - leftPad;
+	return " ".repeat(leftPad) + line + " ".repeat(rightPad);
 }
 
 /**
@@ -171,4 +184,125 @@ export function rainbowLines(lines: string[], frameOffset = 0): string[] {
 		const colorName = RAINBOW_COLORS[(i + frameOffset) % RAINBOW_COLORS.length];
 		return colorToAnsi(colorName) + line + ansi.reset;
 	});
+}
+
+// ─── Box-Drawing Border Styles ─────────────────────────────────────────────────
+
+/** Border character sets for different styles */
+export const BORDERS = {
+	rounded: { tl: "╭", tr: "╮", bl: "╰", br: "╯", v: "│", h: "─" },
+	square: { tl: "┌", tr: "┐", bl: "└", br: "┘", v: "│", h: "─" },
+	double: { tl: "╔", tr: "╗", bl: "╚", br: "╝", v: "║", h: "═" },
+	minimal: { tl: "+", tr: "+", bl: "+", br: "+", v: "|", h: "-" },
+} as const;
+
+export type BorderStyleName = keyof typeof BORDERS;
+
+/**
+ * Build a complete overlay box with borders and optional background fill.
+ *
+ * @param contentLines - The main content to display inside the box
+ * @param boxWidth - Total width of the box including borders
+ * @param borderName - Border style ('rounded' | 'square' | 'double' | 'minimal')
+ * @param bgFillChar - Character for background fill (empty string = no fill, just spaces)
+ * @param footerText - Text to show in the bottom footer line
+ * @param dimColor - ANSI color code for dimmed elements (borders)
+ * @param accentColor - ANSI color code for accent elements (background fill)
+ * @returns Array of lines forming the complete box
+ */
+export function buildOverlayBox(
+	contentLines: string[],
+	boxWidth: number,
+	borderName: BorderStyleName,
+	bgFillChar: string,
+	footerText: string,
+	dimColor: string,
+	accentColor: string,
+): string[] {
+	const b = BORDERS[borderName];
+	const innerWidth = boxWidth - 2; // Subtract 2 for left+right borders
+	const lines: string[] = [];
+
+	// Top border
+	lines.push(`${dimColor}${b.tl}${b.h.repeat(innerWidth)}${b.tr}${ansi.reset}`);
+
+	// Content lines with optional background fill
+	for (const line of contentLines) {
+		const visibleLen = visibleWidth(line);
+		// Calculate padding needed
+		const fillWidth = Math.max(0, innerWidth - visibleLen);
+		const leftFill = Math.floor(fillWidth / 2);
+		const rightFill = fillWidth - leftFill;
+
+		if (bgFillChar) {
+			// With background fill character
+			lines.push(
+				`${dimColor}${b.v}${ansi.reset}` +
+					`${accentColor}${bgFillChar.repeat(leftFill)}${ansi.reset}` +
+					line +
+					`${accentColor}${bgFillChar.repeat(rightFill)}${ansi.reset}` +
+					`${dimColor}${b.v}${ansi.reset}`,
+			);
+		} else {
+			// No background fill — just spaces for padding
+			lines.push(
+				`${dimColor}${b.v}${ansi.reset}` +
+					" ".repeat(leftFill) +
+					line +
+					" ".repeat(rightFill) +
+					`${dimColor}${b.v}${ansi.reset}`,
+			);
+		}
+	}
+
+	// Footer line with text centered
+	if (footerText) {
+		const footerVisLen = visibleWidth(footerText);
+		const footerAvailable = innerWidth - footerVisLen;
+		const footerLeftPad = Math.floor(footerAvailable / 2);
+		const footerRightPad = footerAvailable - footerLeftPad;
+
+		lines.push(
+			`${dimColor}${b.bl}${ansi.reset}` +
+				`${dimColor}${" ".repeat(footerLeftPad)}${ansi.reset}` +
+				footerText +
+				`${dimColor}${" ".repeat(footerRightPad)}${ansi.reset}` +
+				`${dimColor}${b.br}${ansi.reset}`,
+		);
+	} else {
+		lines.push(
+			`${dimColor}${b.bl}${b.h.repeat(innerWidth)}${b.br}${ansi.reset}`,
+		);
+	}
+
+	return lines;
+}
+
+/**
+ * Build an empty box (just borders, no content).
+ * Useful for testing or placeholder boxes.
+ */
+export function buildEmptyBox(
+	boxWidth: number,
+	boxHeight: number,
+	borderName: BorderStyleName,
+	dimColor: string,
+): string[] {
+	const b = BORDERS[borderName];
+	const innerWidth = boxWidth - 2;
+	const innerHeight = boxHeight - 2; // Subtract top and bottom borders
+	const lines: string[] = [];
+
+	// Top border
+	lines.push(`${dimColor}${b.tl}${b.h.repeat(innerWidth)}${b.tr}${ansi.reset}`);
+
+	// Middle rows (just vertical borders)
+	for (let i = 0; i < innerHeight; i++) {
+		lines.push(`${dimColor}${b.v}${" ".repeat(innerWidth)}${b.v}${ansi.reset}`);
+	}
+
+	// Bottom border
+	lines.push(`${dimColor}${b.bl}${b.h.repeat(innerWidth)}${b.br}${ansi.reset}`);
+
+	return lines;
 }

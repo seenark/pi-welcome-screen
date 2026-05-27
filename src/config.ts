@@ -7,7 +7,7 @@ import type { WelcomeConfig, PartialConfig } from "./types.js";
 // ─── Default Configuration ────────────────────────────────────────────────────
 
 export const DEFAULT_CONFIG: WelcomeConfig = {
-    mainText: "Code Sook",
+    mainText: "CodeSook",
     url: "https://codesook.dev",
     animationStyle: "rainbow",
     animationText: "Welcome",
@@ -19,7 +19,23 @@ export const DEFAULT_CONFIG: WelcomeConfig = {
     animationColor: "pink",
     paddingTop: 2,
     paddingBottom: 2,
-    countdown: 30,
+
+    // ─── Overlay-specific defaults ──────────────────────────────────────────────
+    borderStyle: "rounded",
+    bgFillChar: "",
+    minTerminalWidth: 80,
+    overlayWidth: 120, // Much wider overlay
+    countdown: -1, // -1 = wait for user keypress, 0 = never, >0 = seconds until auto-dismiss
+
+    // ─── Debug Mode ──────────────────────────────────────────────────────────────────
+    debug: false, // When true, overlay stays visible forever (never auto-dismisses)
+
+    // ─── Info Panel Options ─────────────────────────────────────────────────────
+    showInfoPanel: true,
+    infoPanelSections: ["model", "tips", "loaded", "sessions"],
+    modelName: "",
+    providerName: "",
+    logoChar: "π",
 };
 
 // ─── Config Loading ────────────────────────────────────────────────────────────
