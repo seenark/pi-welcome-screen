@@ -6,7 +6,7 @@
 </p>
 
 <p align="center">
-  <img src="show-case.png" alt="pi-welcome-screen showcase" width="1100" />
+  <img src="assets/show-case.png" alt="pi-welcome-screen showcase" width="1100" />
 </p>
 
 <p align="center">
