@@ -1,208 +1,311 @@
-# pi-welcome-screen
+<h1 align="center">pi-welcome-screen</h1>
 
-Customizable animated ASCII art welcome **overlay** for the [Pi coding agent](https://github.com/earendil-works/pi-mono).
+<p align="center">
+  Customizable animated ASCII art welcome overlay for the <a href="https://github.com/earendil-works/pi-mono">Pi coding agent</a>.<br/>
+  Shows on session start with animated banner, info panel, countdown, and auto-dismiss.
+</p>
 
-Displays an animated ASCII art banner inside a styled box with borders, countdown timer, and auto-dismiss. Fully customizable: text, URL, animation style, border style, and colors (Catppuccin Mocha palette).
+<p align="center">
+  <img src="show-case.png" alt="pi-welcome-screen showcase" width="1100" />
+</p>
 
-## Features
+<p align="center">
+  <a href="https://www.npmjs.com/package/@codesook/pi-welcome-screen"><img src="https://img.shields.io/npm/v/@codesook/pi-welcome-screen?color=mauve&label=npm" alt="npm" /></a>
+  <img src="https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/No_Build_Step-jiti-green" alt="No build step" />
+</p>
 
-- 🎨 **Animated ASCII banner** — Multiple animation styles (wave, rainbow, glitch, matrix, typewriter)
-- 📦 **Styled overlay box** — Box-drawing borders with background fill
-- ⏱️ **Countdown timer** — Auto-dismisses after configurable seconds
-- ⌨️ **Keyboard dismiss** — Press any key to dismiss immediately
-- 🤖 **Auto-dismiss** — Hides when agent starts responding
-- 🎨 **Catppuccin colors** — Full Mocha palette support
+---
 
-## How It Works
+## ✨ Features
 
-This is a **Pi extension** that:
+- 🎨 **6 animation styles** — wave, rainbow, glitch, matrix, typewriter, static
+- 📦 **Styled overlay box** — box-drawing borders with background fill
+- 📊 **Info panel** — model, keyboard tips, loaded resources, recent sessions (two-column layout on wide terminals)
+- 🖼️ **Custom banner** — bring your own ASCII art via `banner.txt`
+- ⏱️ **Auto-dismiss** — countdown, keypress, or agent activity
+- 🎨 **Catppuccin Mocha** — full palette, all colors by name
 
-1. Subscribes to the `session_start` event
-2. Shows an overlay using `ctx.ui.custom({ overlay: true })`
-3. The overlay displays an animated ASCII banner inside a styled box
-4. Dismisses automatically on countdown, keypress, or agent activity
-
-## Installation
-
-### Option A — Local directory (recommended for development)
-
-```bash
-# Clone the repo
-git clone https://github.com/codesook/pi-welcome-screen.git
-cd pi-welcome-screen
-```
-
-Add to your Pi `settings.json` (`~/.pi/agent/settings.json`):
-
-```json
-{
-  "extensions": ["/path/to/pi-welcome-screen"]
-}
-```
-
-Or use the `-e` flag for quick testing:
+## 📦 Install
 
 ```bash
+# From npm (recommended)
+pi install npm:@codesook/pi-welcome-screen
+
+# Try without installing
+pi -e npm:@codesook/pi-welcome-screen
+
+# From git
+pi install git:github.com/seenark/pi-welcome-screen
+
+# Local development
+git clone https://github.com/seenark/pi-welcome-screen.git
 pi -e /path/to/pi-welcome-screen
 ```
 
-### Option B — Copy to extensions directory
+After installing, just start `pi` — the welcome screen appears automatically on every session.
 
-```bash
-cp -r /path/to/pi-welcome-screen ~/.pi/agent/extensions/pi-welcome-screen
-```
+## 🖼️ Custom Banner
 
-Pi auto-discovers extensions in `~/.pi/agent/extensions/`.
+Replace the built-in ASCII banner with your own art. Create a plain text file:
 
-### Option C — Pi package (npm/git)
+**`~/.pi/agent/pi-welcome-screen/banner.txt`**
 
-```bash
-pi install git:github.com/codesook/pi-welcome-screen
-```
+````
+ ██████╗ ██████╗ ██████╗ ███████╗    ███████╗ ██████╗  ██████╗ ██╗  ██╗
+██╔════╝██╔═══██╗██╔══██╗██╔════╝    ██╔════╝██╔═══██╗██╔═══██╗██║ ██╔╝
+██║     ██║   ██║██║  ██║█████╗      ███████╗██║   ██║██║   ██║█████╔╝
+██║     ██║   ██║██║  ██║██╔══╝      ╚════██║██║   ██║██║   ██║██╔═██╗
+╚██████╗╚██████╔╝██████╔╝███████╗    ███████║╚██████╔╝╚██████╔╝██║  ██╗
+ ╚═════╝ ╚═════╝ ╚═════╝ ╚══════╝    ╚══════╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝```
 
-Or add to `settings.json` under `packages`:
-
-```json
-{
-  "packages": ["git:github.com/codesook/pi-welcome-screen"]
-}
-```
-
-## Configuration
-
-Create `~/.pi/welcome-screen.config.json`:
+Or point to any file via config:
 
 ```json
 {
-  "mainText": "CodeSook",
-  "url": "https://codesook.dev",
-  "animationStyle": "rainbow",
-  "frameDelayMs": 80,
-  "fgColor": "lavender",
-  "accentColor": "blue",
-  "urlColor": "sapphire",
-  "animationColor": "pink",
-  "paddingTop": 2,
-  "paddingBottom": 2,
+  "bannerFile": "/path/to/my-banner.txt"
+}
+````
 
-  "borderStyle": "rounded",
-  "bgFillChar": "",
-  "minTerminalWidth": 80,
-  "overlayWidth": 120,
-  "countdown": -1
+**Search order** (first found wins):
+
+1. Explicit `bannerFile` path from config
+2. `~/.pi/agent/pi-welcome-screen/banner.txt`
+3. `./welcome-screen.banner.txt` (project root)
+
+> **Tip:** Keep your banner under ~80 characters wide for best results on all terminals.
+
+## ⚙️ Configuration
+
+Create a config file — only the fields you want to override are needed:
+
+**`~/.pi/welcome-screen.config.json`**
+
+```json
+{
+    "mainText": "Your Name",
+    "url": "https://yourwebsite.dev",
+    "animationStyle": "rainbow",
+    "animationColor": "pink",
+    "borderStyle": "rounded",
+    "countdown": -1,
+    "showInfoPanel": true
 }
 ```
 
-### Config Options
+**Config file search order** (first found wins):
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `mainText` | string | "CodeSook" | Main text below banner |
-| `url` | string | "https://codesook.dev" | URL displayed below main text |
-| `animationStyle` | string | "rainbow" | Animation style |
-| `frameDelayMs` | number | 80 | Animation speed (ms between frames) |
-| `fgColor` | string | "lavender" | Main text color |
-| `urlColor` | string | "sapphire" | URL text color |
-| `animationColor` | string | "pink" | Color for animated elements |
-| `accentColor` | string | "blue" | Border/background fill color |
-| `paddingTop` | number | 2 | Empty lines above content |
-| `paddingBottom` | number | 2 | Empty lines below content |
-| `countdown` | number | -1 | Auto-dismiss: `-1` = wait for keypress, `0` = never, `>0` = seconds |
-| `borderStyle` | string | "rounded" | Border style (rounded/square/double/minimal) |
-| `bgFillChar` | string | "" | Background fill (empty = no background) |
-| `minTerminalWidth` | number | 80 | Minimum terminal width to show overlay |
-| `overlayWidth` | number | 120 | Width of the overlay box |
-
-Config file search order:
 1. `~/.pi/welcome-screen.config.json`
 2. `~/.pi/config/welcome-screen.json`
-3. `./welcome-screen.config.json`
+3. `./welcome-screen.config.json` (project root)
 
-## Border Styles
+### All Options
 
-| Style | Example |
-|-------|---------|
-| `rounded` | `╭────╮│    │╰────╯` |
-| `square` | `┌────┐│    │└────┘` |
-| `double` | `╔════╗║    ║╚════╝` |
-| `minimal` | `+----++    ++----+` |
+#### Text & Content
 
-## Animation Styles
+| Option           | Type   | Default                  | Description                                    |
+| ---------------- | ------ | ------------------------ | ---------------------------------------------- |
+| `mainText`       | string | `"CodeSook"`             | Text shown below the banner                    |
+| `url`            | string | `"https://codesook.dev"` | URL shown below main text                      |
+| `animationStyle` | string | `"rainbow"`              | Animation style (see below)                    |
+| `animationText`  | string | `"Welcome"`              | Text used for some animations                  |
+| `frameDelayMs`   | number | `80`                     | Milliseconds between animation frames (0–1000) |
+| `bannerFile`     | string | `""`                     | Path to custom banner `.txt` file              |
 
-| Style | Description |
-|-------|-------------|
-| `wave` | Letters shift with a sinusoidal wave effect |
-| `rainbow` | Each line cycles through the full Catppuccin spectrum |
-| `glitch` | Random glitch artifacts appear on lines |
-| `matrix` | Text is revealed from left to right (Matrix-style) |
-| `typewriter` | Characters appear one-by-one |
-| `static` | No animation — just the banner in full color |
+#### Layout
 
-## Commands
+| Option             | Type   | Default     | Description                                             |
+| ------------------ | ------ | ----------- | ------------------------------------------------------- |
+| `paddingTop`       | number | `2`         | Empty lines above content                               |
+| `paddingBottom`    | number | `2`         | Empty lines below content                               |
+| `borderStyle`      | string | `"rounded"` | Border style: `rounded`, `square`, `double`, `minimal`  |
+| `bgFillChar`       | string | `""`        | Background fill character (e.g. `"░"`). Empty = no fill |
+| `minTerminalWidth` | number | `80`        | Hide overlay if terminal is narrower than this          |
+| `overlayWidth`     | number | `120`       | Width of the overlay box                                |
 
-| Command | Description |
-|---------|-------------|
+#### Behavior
+
+| Option            | Type    | Default | Description                                                   |
+| ----------------- | ------- | ------- | ------------------------------------------------------------- |
+| `countdown`       | number  | `-1`    | `-1` = wait for keypress, `0` = never dismiss, `>0` = seconds |
+| `debug`           | boolean | `false` | Overlay stays visible forever (never auto-dismisses)          |
+| `enableScrolling` | boolean | `true`  | Allow arrow-key scrolling when content overflows              |
+
+#### Colors (Catppuccin Mocha names)
+
+| Option           | Type   | Default      | Description                            |
+| ---------------- | ------ | ------------ | -------------------------------------- |
+| `fgColor`        | string | `"lavender"` | Main text color                        |
+| `bgColor`        | string | `"base"`     | Background color                       |
+| `accentColor`    | string | `"blue"`     | Border / accent color                  |
+| `urlColor`       | string | `"sapphire"` | URL text color                         |
+| `animationColor` | string | `"pink"`     | Animation / highlighted elements color |
+
+#### Visibility Toggles
+
+| Option          | Type    | Default | Description                           |
+| --------------- | ------- | ------- | ------------------------------------- |
+| `showBanner`    | boolean | `true`  | Show the ASCII art banner             |
+| `showMainText`  | boolean | `true`  | Show the main text line               |
+| `showUrl`       | boolean | `true`  | Show the URL line                     |
+| `showCountdown` | boolean | `true`  | Show countdown / "press any key" hint |
+| `showPadding`   | boolean | `true`  | Show top/bottom padding               |
+| `showBorder`    | boolean | `true`  | Show the border box                   |
+
+#### Info Panel
+
+The info panel appears on the right side when the terminal is ≥ 100 chars wide, or below the banner on narrower terminals.
+
+| Option              | Type     | Default                                                      | Description                                     |
+| ------------------- | -------- | ------------------------------------------------------------ | ----------------------------------------------- |
+| `showInfoPanel`     | boolean  | `true`                                                       | Show the info panel                             |
+| `showVersion`       | boolean  | `true`                                                       | Show Pi version                                 |
+| `showModel`         | boolean  | `true`                                                       | Show model name & provider                      |
+| `showTips`          | boolean  | `true`                                                       | Show keyboard tips                              |
+| `showLoaded`        | boolean  | `true`                                                       | Show loaded counts (extensions, skills, etc.)   |
+| `showResources`     | boolean  | `true`                                                       | Show detailed resource listings                 |
+| `showSessions`      | boolean  | `true`                                                       | Show recent sessions                            |
+| `infoPanelSections` | string[] | `["version","model","tips","loaded","resources","sessions"]` | Section order                                   |
+| `modelName`         | string   | `""`                                                         | Override model name (auto-detected if empty)    |
+| `providerName`      | string   | `""`                                                         | Override provider name (auto-detected if empty) |
+| `logoChar`          | string   | `"π"`                                                        | Character used for the logo                     |
+
+### Animation Styles
+
+| Style        | Description                                        |
+| ------------ | -------------------------------------------------- |
+| `wave`       | Letters shift with a sinusoidal wave effect        |
+| `rainbow`    | Each line cycles through the Catppuccin spectrum   |
+| `glitch`     | Random glitch artifacts appear on lines            |
+| `matrix`     | Text is revealed from left to right (Matrix-style) |
+| `typewriter` | Characters appear one-by-one                       |
+| `static`     | No animation — banner shown in full color          |
+
+### Border Styles
+
+| Style     | Corners         | Sides   |
+| --------- | --------------- | ------- |
+| `rounded` | `╭` `╮` `╰` `╯` | `│` `─` |
+| `square`  | `┌` `┐` `└` `┘` | `│` `─` |
+| `double`  | `╔` `╗` `╚` `╝` | `║` `═` |
+| `minimal` | `+` `+` `+` `+` | `│` `─` |
+
+### Color Palette (Catppuccin Mocha)
+
+All color options accept these names:
+
+| Name       | Hex       | Preview | Name        | Hex       | Preview |
+| ---------- | --------- | ------- | ----------- | --------- | ------- |
+| `base`     | `#1e1e2e` | 🟣      | `lavender`  | `#b4befe` | 💜      |
+| `mantle`   | `#181825` | ⬛      | `blue`      | `#89b4fa` | 💙      |
+| `crust`    | `#11111b` | ⬛      | `sapphire`  | `#74c7ec` | 🩵      |
+| `surface0` | `#313244` | 🔘      | `sky`       | `#89dceb` | 🩵      |
+| `surface1` | `#45475a` | 🔘      | `teal`      | `#94e2d5` | 🩵      |
+| `surface2` | `#585b70` | 🔘      | `green`     | `#a6e3a1` | 💚      |
+| `overlay0` | `#6c7086` | 🔘      | `yellow`    | `#f9e2af` | 💛      |
+| `overlay1` | `#7f849c` | 🔘      | `peach`     | `#fab387` | 🧡      |
+| `overlay2` | `#9399b2` | 🔘      | `maroon`    | `#eba0ac` | 🩷      |
+| `subtext0` | `#a6adc8` | 🔘      | `red`       | `#f38ba8` | ❤️      |
+| `subtext1` | `#bac2de` | 🔘      | `mauve`     | `#cba6f7` | 💜      |
+| `text`     | `#cdd6f4` | ⬜      | `pink`      | `#f5c2e7` | 🩷      |
+|            |           |         | `flamingo`  | `#f2cdcd` | 🩷      |
+|            |           |         | `rosewater` | `#f5e0dc` | 🩷      |
+
+## 🎮 Commands
+
+| Command            | Description                          |
+| ------------------ | ------------------------------------ |
 | `/welcome-dismiss` | Manually dismiss the welcome overlay |
-| `/welcome-reload` | Reload config and reshow overlay |
+| `/welcome-reload`  | Reload config and reshow the overlay |
 
-## Color Names (Catppuccin Mocha)
+## 🧩 Example Configs
 
-| Name | Hex | Name | Hex |
-|------|-----|------|-----|
-| `base` | #1e1e2e | `lavender` | #b4befe |
-| `mantle` | #181825 | `blue` | #89b4fa |
-| `crust` | #11111b | `sapphire` | #74c7ec |
-| `surface0` | #313244 | `sky` | #89dceb |
-| `surface1` | #45475a | `teal` | #94e2d5 |
-| `surface2` | #585b70 | `green` | #a6e3a1 |
-| `overlay0` | #6c7086 | `yellow` | #f9e2af |
-| `overlay1` | #7f849c | `peach` | #fab387 |
-| `overlay2` | #9399b2 | `maroon` | #eba0ac |
-| `subtext0` | #a6adc8 | `red` | #f38ba8 |
-| `subtext1` | #bac2de | `mauve` | #cba6f7 |
-| `text` | #cdd6f4 | `pink` | #f5c2e7 |
-| | | `flamingo` | #f2cdcd |
-| | | `rosewater` | #f5e0dc |
-
-## Compatibility with pi-powerline-footer
-
-If you use [pi-powerline-footer](https://github.com/nicobailon/pi-powerline-footer), you can disable its welcome screen to avoid conflicts:
+### Minimal — just change the name
 
 ```json
-// ~/.pi/settings.json
 {
-  "powerline": {
-    "welcome": false
-  }
+    "mainText": "acme-corp"
 }
 ```
 
-## Project Structure
+### Dark cyberpunk theme
 
+```json
+{
+    "mainText": "NEON::CORP",
+    "url": "https://neon.corp",
+    "animationStyle": "glitch",
+    "animationColor": "red",
+    "fgColor": "red",
+    "urlColor": "mauve",
+    "borderStyle": "double",
+    "bgFillChar": "░"
+}
 ```
-pi-welcome-screen/
-├── package.json        # pi.extensions → ./src/index.ts
-├── src/
-│   ├── index.ts        # Extension entry — exports factory function
-│   ├── WelcomeOverlay.ts # Overlay component class
-│   ├── config.ts       # Defaults + config file loading
-│   ├── animations.ts   # ASCII banner + frame builders
-│   ├── renderer.ts     # ANSI color + box-drawing utilities
-│   └── types.ts       # TypeScript interfaces
-└── README.md
+
+### Clean & minimal — no animation, no border
+
+```json
+{
+    "mainText": "my-project",
+    "url": "https://github.com/me/my-project",
+    "animationStyle": "static",
+    "animationColor": "blue",
+    "showBorder": false,
+    "showInfoPanel": false,
+    "paddingTop": 1,
+    "paddingBottom": 0,
+    "countdown": 3
+}
 ```
 
-## Development
+### Custom banner with your brand
 
-No build step needed — Pi loads TypeScript extensions via [jiti](https://github.com/unjs/jiti).
+```json
+{
+    "mainText": "My Brand",
+    "url": "https://mybrand.io",
+    "bannerFile": "~/.pi/agent/pi-welcome-screen/banner.txt",
+    "animationStyle": "rainbow",
+    "animationColor": "green"
+}
+```
+
+## 🤝 Compatibility
+
+**pi-powerline-footer** — if you use [pi-powerline-footer](https://github.com/nicobailon/pi-powerline-footer), disable its welcome screen to avoid conflicts:
+
+```json
+{
+    "powerline": { "welcome": false }
+}
+```
+
+## 🛠️ Development
+
+No build step — Pi loads TypeScript directly via [jiti](https://github.com/unjs/jiti).
 
 ```bash
 # Test locally
 pi -e .
 
-# Or install as extension and run pi normally
+# Install from local path
+pi install /path/to/pi-welcome-screen
 ```
 
-## License
+## 📁 Project Structure
 
-MIT
+```
+src/
+├── index.ts           # Entry point — Pi extension factory
+├── WelcomeOverlay.ts  # Overlay component with two-column layout
+├── config.ts          # Defaults, Catppuccin palette, config loading
+├── animations.ts      # ASCII banner data + frame builders per style
+├── renderer.ts        # ANSI escape codes, color mapping, centering
+├── info-panel.ts      # Loaded counts, recent sessions discovery
+└── types.ts           # Config interface, animation & border types
+```
+
+## 📄 License
+
+MIT © [Code Sook](https://github.com/seenark)

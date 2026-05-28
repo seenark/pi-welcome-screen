@@ -10,13 +10,13 @@
       "type": "export",
       "name": "InfoPanelSection",
       "file": "src/WelcomeOverlay.ts",
-      "line": 527
+      "line": 803
     },
     {
       "type": "export",
       "name": "BorderStyleName",
       "file": "src/WelcomeOverlay.ts",
-      "line": 529
+      "line": 805
     },
     {
       "type": "unlisted",
@@ -28,19 +28,31 @@
       "type": "export",
       "name": "validateConfig",
       "file": "src/config.ts",
-      "line": 80
+      "line": 176
+    },
+    {
+      "type": "export",
+      "name": "discoverLoadedResources",
+      "file": "src/info-panel.ts",
+      "line": 39
     },
     {
       "type": "export",
       "name": "discoverLoadedCounts",
       "file": "src/info-panel.ts",
-      "line": 32
+      "line": 321
     },
     {
       "type": "export",
       "name": "getRecentSessions",
       "file": "src/info-panel.ts",
-      "line": 237
+      "line": 330
+    },
+    {
+      "type": "export",
+      "name": "discoverPiVersion",
+      "file": "src/info-panel.ts",
+      "line": 409
     },
     {
       "type": "export",
@@ -52,43 +64,43 @@
       "type": "export",
       "name": "colorize",
       "file": "src/renderer.ts",
-      "line": 59
+      "line": 81
     },
     {
       "type": "export",
       "name": "centerLine",
       "file": "src/renderer.ts",
-      "line": 67
+      "line": 89
     },
     {
       "type": "export",
       "name": "stripAnsi",
       "file": "src/renderer.ts",
-      "line": 103
+      "line": 125
     },
     {
       "type": "export",
       "name": "rainbowLine",
       "file": "src/renderer.ts",
-      "line": 168
+      "line": 190
     },
     {
       "type": "export",
       "name": "rainbowLines",
       "file": "src/renderer.ts",
-      "line": 182
+      "line": 204
     },
     {
       "type": "export",
       "name": "buildOverlayBox",
       "file": "src/renderer.ts",
-      "line": 213
+      "line": 235
     },
     {
       "type": "export",
       "name": "buildEmptyBox",
       "file": "src/renderer.ts",
-      "line": 285
+      "line": 307
     },
     {
       "type": "export",
@@ -126,31 +138,43 @@
       "type": "export",
       "name": "InfoPanelSection",
       "file": "src/WelcomeOverlay.ts",
-      "line": 527
+      "line": 803
     },
     {
       "type": "export",
       "name": "BorderStyleName",
       "file": "src/WelcomeOverlay.ts",
-      "line": 529
+      "line": 805
     },
     {
       "type": "export",
       "name": "validateConfig",
       "file": "src/config.ts",
-      "line": 80
+      "line": 176
+    },
+    {
+      "type": "export",
+      "name": "discoverLoadedResources",
+      "file": "src/info-panel.ts",
+      "line": 39
     },
     {
       "type": "export",
       "name": "discoverLoadedCounts",
       "file": "src/info-panel.ts",
-      "line": 32
+      "line": 321
     },
     {
       "type": "export",
       "name": "getRecentSessions",
       "file": "src/info-panel.ts",
-      "line": 237
+      "line": 330
+    },
+    {
+      "type": "export",
+      "name": "discoverPiVersion",
+      "file": "src/info-panel.ts",
+      "line": 409
     },
     {
       "type": "export",
@@ -162,43 +186,43 @@
       "type": "export",
       "name": "colorize",
       "file": "src/renderer.ts",
-      "line": 59
+      "line": 81
     },
     {
       "type": "export",
       "name": "centerLine",
       "file": "src/renderer.ts",
-      "line": 67
+      "line": 89
     },
     {
       "type": "export",
       "name": "stripAnsi",
       "file": "src/renderer.ts",
-      "line": 103
+      "line": 125
     },
     {
       "type": "export",
       "name": "rainbowLine",
       "file": "src/renderer.ts",
-      "line": 168
+      "line": 190
     },
     {
       "type": "export",
       "name": "rainbowLines",
       "file": "src/renderer.ts",
-      "line": 182
+      "line": 204
     },
     {
       "type": "export",
       "name": "buildOverlayBox",
       "file": "src/renderer.ts",
-      "line": 213
+      "line": 235
     },
     {
       "type": "export",
       "name": "buildEmptyBox",
       "file": "src/renderer.ts",
-      "line": 285
+      "line": 307
     },
     {
       "type": "export",
@@ -247,5 +271,5 @@
       "line": 12
     }
   ],
-  "summary": "Found 20 issues"
+  "summary": "Found 22 issues"
 }

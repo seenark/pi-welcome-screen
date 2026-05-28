@@ -1,15 +1,38 @@
 {
-  "generatedAt": "2026-05-27T11:25:20.503Z",
+  "generatedAt": "2026-05-28T06:58:27.366Z",
   "scope": "turn_delta",
-  "sessionId": "lens-mpnz4jol-4e2a2439",
-  "turnIndex": 8,
-  "projectSeqStart": 21,
-  "projectSeqEnd": 22,
+  "sessionId": "lens-mpp4m91a-d99f9db2",
+  "turnIndex": 15,
+  "projectSeqStart": 70,
+  "projectSeqEnd": 71,
   "deltaOnly": true,
-  "files": [],
+  "files": [
+    {
+      "filePath": "/Volumes/HadesGodBlue/CodeSook/pi-welcome-screen/README.md",
+      "displayPath": "README.md",
+      "fileSeq": 1,
+      "warnings": [
+        {
+          "id": "cq:b162492649",
+          "filePath": "/Volumes/HadesGodBlue/CodeSook/pi-welcome-screen/README.md",
+          "displayPath": "README.md",
+          "severity": "warning",
+          "tool": "pi-lens",
+          "message": "Pi-lens analysis unavailable. Tools for markdown not installed.",
+          "category": "other",
+          "origin": "dispatch"
+        }
+      ]
+    }
+  ],
   "summary": {
-    "warnings": 0,
-    "files": 0,
-    "topRules": []
+    "warnings": 1,
+    "files": 1,
+    "topRules": [
+      {
+        "rule": "pi-lens",
+        "count": 1
+      }
+    ]
   }
 }

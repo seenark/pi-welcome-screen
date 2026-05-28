@@ -1,8 +1,8 @@
 {
   "version": 1,
   "projectRoot": "/Volumes/HadesGodBlue/CodeSook/pi-welcome-screen",
-  "generatedAt": "2026-05-27T11:49:06.239Z",
-  "seq": 22,
+  "generatedAt": "2026-05-28T06:43:00.605Z",
+  "seq": 68,
   "files": {
     "/Volumes/HadesGodBlue/CodeSook/pi-welcome-screen/src/animations.ts": {
       "path": "/Volumes/HadesGodBlue/CodeSook/pi-welcome-screen/src/animations.ts",
@@ -85,7 +85,7 @@
     "hasCustomRules": true
   },
   "projectIndex": {
-    "entryCount": 14
+    "entryCount": 28
   },
   "startupScan": {
     "cwd": "/Volumes/HadesGodBlue/CodeSook/pi-welcome-screen",
