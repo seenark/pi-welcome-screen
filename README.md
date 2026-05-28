@@ -6,7 +6,7 @@
 </p>
 
 <p align="center">
-  <img src="assets/show-case.png" alt="pi-welcome-screen showcase" width="1100" />
+  <img src="https://github.com/seenark/pi-welcome-screen/blob/main/assets/show-case.png?raw=true" alt="pi-welcome-screen showcase" width="1100" />
 </p>
 
 <p align="center">
